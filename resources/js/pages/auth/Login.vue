@@ -1,17 +1,14 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import InputError from '@/components/InputError.vue';
-import PasswordInput from '@/components/PasswordInput.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
+import { Form, Head, Link, router } from '@inertiajs/vue3';
+import { usePasskeyVerify } from '@laravel/passkeys/vue';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
-import PasskeyVerify from '@/components/PasskeyVerify.vue';
+
+defineProps<{
+    status?: string;
+    canResetPassword: boolean;
+}>();
 
 defineOptions({
     layout: {
@@ -20,34 +17,48 @@ defineOptions({
     },
 });
 
-defineProps<{
-    status?: string;
-    canResetPassword: boolean;
-}>();
+const {
+    verify,
+    isLoading: isVerifyingPasskey,
+    error: passkeyError,
+    isSupported: passkeysSupported,
+} = usePasskeyVerify({
+    onSuccess: (response) => {
+        router.visit(response.redirect ?? '/dashboard');
+    },
+});
 </script>
 
 <template>
-    <Head title="Log in" />
+    <div>
+        <Head title="Log in" />
 
-    <div
-        v-if="status"
-        class="mb-4 text-center text-sm font-medium text-green-600"
-    >
-        {{ status }}
-    </div>
+        <p v-if="status" role="status">{{ status }}</p>
 
-    <PasskeyVerify />
+        <section v-if="passkeysSupported">
+            <button
+                type="button"
+                :disabled="isVerifyingPasskey"
+                @click="verify"
+            >
+                {{
+                    isVerifyingPasskey
+                        ? 'Authenticating…'
+                        : 'Sign in with a passkey'
+                }}
+            </button>
+            <p v-if="passkeyError" role="alert">{{ passkeyError }}</p>
+            <p>Or continue with email</p>
+        </section>
 
-    <Form
-        v-bind="store.form()"
-        :reset-on-success="['password']"
-        v-slot="{ errors, processing }"
-        class="flex flex-col gap-6"
-    >
-        <div class="grid gap-6">
-            <div class="grid gap-2">
-                <Label for="email">Email address</Label>
-                <Input
+        <Form
+            v-bind="store.form()"
+            :reset-on-success="['password']"
+            v-slot="{ errors, processing }"
+        >
+            <div>
+                <label for="email">Email address</label>
+                <input
                     id="email"
                     type="email"
                     name="email"
@@ -57,54 +68,51 @@ defineProps<{
                     autocomplete="email"
                     placeholder="email@example.com"
                 />
-                <InputError :message="errors.email" />
+                <p v-if="errors.email" role="alert">{{ errors.email }}</p>
             </div>
 
-            <div class="grid gap-2">
-                <div class="flex items-center justify-between">
-                    <Label for="password">Password</Label>
-                    <TextLink
-                        v-if="canResetPassword"
-                        :href="request()"
-                        class="text-sm"
-                        :tabindex="5"
-                    >
-                        Forgot your password?
-                    </TextLink>
-                </div>
-                <PasswordInput
+            <div>
+                <label for="password">Password</label>
+                <Link v-if="canResetPassword" :href="request()" :tabindex="5">
+                    Forgot your password?
+                </Link>
+                <input
                     id="password"
+                    type="password"
                     name="password"
                     required
                     :tabindex="2"
                     autocomplete="current-password"
                     placeholder="Password"
                 />
-                <InputError :message="errors.password" />
+                <p v-if="errors.password" role="alert">{{ errors.password }}</p>
             </div>
 
-            <div class="flex items-center justify-between">
-                <Label for="remember" class="flex items-center space-x-3">
-                    <Checkbox id="remember" name="remember" :tabindex="3" />
-                    <span>Remember me</span>
-                </Label>
+            <div>
+                <label for="remember">
+                    <input
+                        id="remember"
+                        type="checkbox"
+                        name="remember"
+                        :tabindex="3"
+                    />
+                    Remember me
+                </label>
             </div>
 
-            <Button
+            <button
                 type="submit"
-                class="mt-4 w-full"
                 :tabindex="4"
                 :disabled="processing"
                 data-test="login-button"
             >
-                <Spinner v-if="processing" />
-                Log in
-            </Button>
-        </div>
+                {{ processing ? 'Logging in…' : 'Log in' }}
+            </button>
+        </Form>
 
-        <div class="text-center text-sm text-muted-foreground">
+        <p>
             Don't have an account?
-            <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
-        </div>
-    </Form>
+            <Link :href="register()" :tabindex="5">Sign up</Link>
+        </p>
+    </div>
 </template>

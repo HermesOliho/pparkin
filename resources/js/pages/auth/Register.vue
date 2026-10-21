@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import InputError from '@/components/InputError.vue';
-import PasswordInput from '@/components/PasswordInput.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
+import { Form, Head, Link } from '@inertiajs/vue3';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
 
@@ -23,18 +16,17 @@ defineOptions({
 </script>
 
 <template>
-    <Head title="Register" />
+    <div>
+        <Head title="Register" />
 
-    <Form
-        v-bind="store.form()"
-        :reset-on-success="['password', 'password_confirmation']"
-        v-slot="{ errors, processing }"
-        class="flex flex-col gap-6"
-    >
-        <div class="grid gap-6">
-            <div class="grid gap-2">
-                <Label for="name">Name</Label>
-                <Input
+        <Form
+            v-bind="store.form()"
+            :reset-on-success="['password', 'password_confirmation']"
+            v-slot="{ errors, processing }"
+        >
+            <div>
+                <label for="name">Name</label>
+                <input
                     id="name"
                     type="text"
                     required
@@ -44,12 +36,12 @@ defineOptions({
                     name="name"
                     placeholder="Full name"
                 />
-                <InputError :message="errors.name" />
+                <p v-if="errors.name" role="alert">{{ errors.name }}</p>
             </div>
 
-            <div class="grid gap-2">
-                <Label for="email">Email address</Label>
-                <Input
+            <div>
+                <label for="email">Email address</label>
+                <input
                     id="email"
                     type="email"
                     required
@@ -58,13 +50,14 @@ defineOptions({
                     name="email"
                     placeholder="email@example.com"
                 />
-                <InputError :message="errors.email" />
+                <p v-if="errors.email" role="alert">{{ errors.email }}</p>
             </div>
 
-            <div class="grid gap-2">
-                <Label for="password">Password</Label>
-                <PasswordInput
+            <div>
+                <label for="password">Password</label>
+                <input
                     id="password"
+                    type="password"
                     required
                     :tabindex="3"
                     autocomplete="new-password"
@@ -72,13 +65,14 @@ defineOptions({
                     placeholder="Password"
                     :passwordrules="passwordRules"
                 />
-                <InputError :message="errors.password" />
+                <p v-if="errors.password" role="alert">{{ errors.password }}</p>
             </div>
 
-            <div class="grid gap-2">
-                <Label for="password_confirmation">Confirm password</Label>
-                <PasswordInput
+            <div>
+                <label for="password_confirmation">Confirm password</label>
+                <input
                     id="password_confirmation"
+                    type="password"
                     required
                     :tabindex="4"
                     autocomplete="new-password"
@@ -86,29 +80,24 @@ defineOptions({
                     placeholder="Confirm password"
                     :passwordrules="passwordRules"
                 />
-                <InputError :message="errors.password_confirmation" />
+                <p v-if="errors.password_confirmation" role="alert">
+                    {{ errors.password_confirmation }}
+                </p>
             </div>
 
-            <Button
+            <button
                 type="submit"
-                class="mt-2 w-full"
                 tabindex="5"
                 :disabled="processing"
                 data-test="register-user-button"
             >
-                <Spinner v-if="processing" />
-                Create account
-            </Button>
-        </div>
+                {{ processing ? 'Creating account…' : 'Create account' }}
+            </button>
+        </Form>
 
-        <div class="text-center text-sm text-muted-foreground">
+        <p>
             Already have an account?
-            <TextLink
-                :href="login()"
-                class="underline underline-offset-4"
-                :tabindex="6"
-                >Log in</TextLink
-            >
-        </div>
-    </Form>
+            <Link :href="login()" :tabindex="6">Log in</Link>
+        </p>
+    </div>
 </template>
