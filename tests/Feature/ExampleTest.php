@@ -9,10 +9,10 @@ class ExampleTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_root_route_is_not_available()
+    public function test_home_page_can_be_rendered()
     {
-        $response = $this->get('/');
+        $response = $this->get(route('home'));
 
-        $response->assertNotFound();
+        $response->assertOk();
     }
 }

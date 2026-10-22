@@ -1,3 +1,5 @@
+<script setup lang="ts"></script>
+
 <template>
     <div>
         <div class="text-2xl font-bold break-keep flex">

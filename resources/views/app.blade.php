@@ -8,6 +8,32 @@
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+        <script>
+            (() => {
+                try {
+                    const stored = JSON.parse(
+                        localStorage.getItem('pparkin:theme') || 'null',
+                    );
+                    const preference = stored?.currentTheme ?? 'device';
+                    const prefersDark = window.matchMedia(
+                        '(prefers-color-scheme: dark)',
+                    ).matches;
+
+                    const theme =
+                        preference === 'dark' ||
+                        (preference === 'device' && prefersDark)
+                            ? 'forest'
+                            : 'emerald';
+
+                    document.documentElement.dataset.theme = theme;
+                    document.documentElement.style.colorScheme =
+                        theme === 'forest' ? 'dark' : 'light';
+                } catch {
+                    document.documentElement.dataset.theme = 'emerald';
+                }
+            })();
+        </script>
+
         @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         <x-inertia::head>
             <title>{{ config('app.name', 'Laravel') }}</title>
