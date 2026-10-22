@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import { Link, router, usePage } from "@inertiajs/vue3";
-import { computed } from "vue";
+import AppLogo from "@/components/ui/AppLogo.vue";
 import { flashMessage } from "@/lib/flash";
-import { dashboard, logout } from "@/routes";
+import { logout } from "@/routes";
 import { edit as editProfile } from "@/routes/profile";
 import { edit as editSecurity } from "@/routes/security";
+import { Link, router, usePage } from "@inertiajs/vue3";
 import {
     LogOut,
     Menu,
     Moon,
-    OptionIcon,
-    Settings2,
     ShieldCheck,
     Smartphone,
     Sun,
     User,
 } from "@lucide/vue";
-import AppLogo from "@/components/ui/AppLogo.vue";
+import { computed } from "vue";
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -47,19 +45,79 @@ const handleLogout = () => {
             <div class="flex-none flex gap-2">
                 <!-- ****** Secondary navbar menu ****** -->
                 <!-- *** For small screens *** -->
+                <!-- Theme picker -->
+                <div class="dropdown dropdown-end lg:hidden ms-1">
+                    <div
+                        tabindex="0"
+                        role="button"
+                        class="btn btn-square btn-ghost rounded-field"
+                    >
+                        <Moon class="size-6" />
+                    </div>
+                    <ul
+                        tabindex="-1"
+                        class="menu dropdown-content w-52 mt-6 p-1 rounded-box bg-base-100 shadow-sm"
+                    >
+                        <li>
+                            <Link :href="editProfile()">
+                                <Sun class="size-4" />
+                                Clair
+                            </Link>
+                        </li>
+                        <li>
+                            <Link :href="editProfile()">
+                                <Moon class="size-4" />
+                                Sombre
+                            </Link>
+                        </li>
+                        <li>
+                            <Link :href="editSecurity()">
+                                <Smartphone class="size-4" />
+                                Appareil
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
                 <!-- User menu -->
                 <div class="dropdown dropdown-end lg:hidden">
                     <div
                         tabindex="0"
                         role="button"
-                        class="btn btn-ghost rounded-field"
+                        class="btn btn-ghost btn-square rounded-field"
                     >
-                        <Settings2 class="size-8" />
+                        <User class="size-8" />
                     </div>
                     <ul
                         tabindex="-1"
                         class="menu dropdown-content bg-base-100 rounded-box w-52 mt-4 p-2 shadow-sm"
-                    ></ul>
+                    >
+                        <li>
+                            <Link :href="editProfile()">
+                                <User class="size-4" />
+                                Profil
+                            </Link>
+                        </li>
+                        <li>
+                            <Link :href="editSecurity()">
+                                <ShieldCheck class="size-4" />
+                                Sécurité
+                            </Link>
+                        </li>
+                        <div class="divider my-0"></div>
+                        <li>
+                            <Link
+                                :href="logout()"
+                                method="post"
+                                as="button"
+                                data-test="logout-button"
+                                @click="handleLogout"
+                                class="text-error"
+                            >
+                                <LogOut class="size-4" />
+                                Se déconnecter
+                            </Link>
+                        </li>
+                    </ul>
                 </div>
                 <!-- *** For large screens *** -->
                 <nav class="hidden lg:block">
